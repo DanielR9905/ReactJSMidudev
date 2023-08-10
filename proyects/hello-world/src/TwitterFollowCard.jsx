@@ -1,7 +1,6 @@
 import React from "react";
 
-export function TwitterFollowCard({ userName, name, isFollowing }) {
-
+export function TwitterFollowCard({ formattedUserName,userName, name, isFollowing }) {
   return (
     <article className="tw-followCard">
       <header className="tw-followCard-header">
@@ -12,7 +11,7 @@ export function TwitterFollowCard({ userName, name, isFollowing }) {
         />
         <div className="tw-followCard-info">
           <strong>{name}</strong>
-          <span>@{userName}</span>
+          <span>{formattedUserName}</span>
         </div>
       </header>
 
