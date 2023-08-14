@@ -1,16 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import "./index.css";
 import { TwitterFollowCard } from "./TwitterFollowCard";
 import "./App.css";
 
 export function App() {
-  const formattedUserName = <span>@_0dr1</span>
+  const [isFollowing, setIsFollowing] = useState(false)
   return (
-    <section className='App'>
-    <TwitterFollowCard formattedUserName={formattedUserName} isFollowing={true} name="Daniel Ramirez" userName="_0dr" />
-    <TwitterFollowCard formattedUserName={formattedUserName} isFollowing={false} name="Daniel Ramirez" userName="midudev" />
-    <TwitterFollowCard formattedUserName={formattedUserName} isFollowing={true} name="Daniel Ramirez" userName="midudev" />
-    <TwitterFollowCard formattedUserName={formattedUserName} isFollowing name="Daniel Ramirez" userName="midudev" />
-     </section>
-  )
+    <section className="App">
+      <TwitterFollowCard userName="_0dr" initialIsFollowing={true}>
+        Daniel Ramirez
+      </TwitterFollowCard>
+      <TwitterFollowCard userName="midudev" initialIsFollowing={true}>
+        Midudev
+      </TwitterFollowCard>
+      <TwitterFollowCard userName="dog">
+        Dog
+      </TwitterFollowCard>
+      <TwitterFollowCard userName="cat">
+        Cat
+      </TwitterFollowCard>
+    </section>
+  );
 }
