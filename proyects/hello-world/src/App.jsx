@@ -1,24 +1,47 @@
-import React, { useState } from "react";
 import "./index.css";
 import { TwitterFollowCard } from "./TwitterFollowCard";
 import "./App.css";
 
+const users = [
+  {
+    userName: "midudev",
+    name: "Miguel Angel Duran",
+    isFollowing: true,
+  },
+  {
+    userName: "pheralb",
+    name: "Pablo H.",
+    isFollowing: false,
+  },
+  {
+    userName: "_0dr",
+    name: "Daniel R",
+    isFollowing: true,
+  },
+  {
+    userName: "dog",
+    name: "Dog R",
+    isFollowing: false,
+  },
+  {
+    userName: "cat",
+    name: "Cat R",
+    isFollowing: false,
+  },
+];
+
 export function App() {
-  const [isFollowing, setIsFollowing] = useState(false)
   return (
     <section className="App">
-      <TwitterFollowCard userName="_0dr" initialIsFollowing={true}>
-        Daniel Ramirez
-      </TwitterFollowCard>
-      <TwitterFollowCard userName="midudev" initialIsFollowing={true}>
-        Midudev
-      </TwitterFollowCard>
-      <TwitterFollowCard userName="dog">
-        Dog
-      </TwitterFollowCard>
-      <TwitterFollowCard userName="cat">
-        Cat
-      </TwitterFollowCard>
+      {users.map(({ userName, name, isFollowing }) => (
+        <TwitterFollowCard
+          key={userName}
+          userName={userName}
+          initialIsFollowing={isFollowing}
+        >
+          {name}
+        </TwitterFollowCard>
+      ))}
     </section>
   );
 }
