@@ -8,7 +8,16 @@ module.exports = {
     'plugin:react-hooks/recommended',
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
-  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+  "parser": "babel-eslint",
+  "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+          "jsx": true,
+          "modules": true,
+          "experimentalObjectRestSpread": true
+      }
+  },
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
   rules: {
