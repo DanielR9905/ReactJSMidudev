@@ -1,97 +1,93 @@
-import { useState } from "react";
+import { useState } from 'react'
+import confetti from 'canvas-confetti'
 
-const TURNS = {
-  X: "x",
-  O: "o",
-};
+import { Square } from './components/Square.jsx'
+import { TURNS } from './constants.js'
+import { checkWinnerFrom, checkEndGame } from './logic/board.js'
+import { WinnerModal } from './components/WinnerModal.jsx'
+import { saveGameToStorage, resetGameStorage } from './logic/storage/index.js'
 
-const Squared = ({ children, isSelected, updateBoard, index }) => {
-  const className = `square ${isSelected ? "is-selected" : ""}`;
+function App () {
+  const [board, setBoard] = useState(() => {
+    const boardFromStorage = window.localStorage.getItem('board')
+    if (boardFromStorage) return JSON.parse(boardFromStorage)
+    return Array(9).fill(null)
+  })
 
-  const handleClick = () => {
-    updateBoard(index);
-  };
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    return turnFromStorage ?? TURNS.X
+  })
 
-  return (
-    <div onClick={handleClick} className={className}>
-      {children}
-    </div>
-  );
-};
+  // null es que no hay ganador, false es que hay un empate
+  const [winner, setWinner] = useState(null)
 
-const WINNER_COMBOS = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+  const resetGame = () => {
+    setBoard(Array(9).fill(null))
+    setTurn(TURNS.X)
+    setWinner(null)
 
-function App() {
-  const [board, setBoard] = useState(Array(9).fill(null));
-
-  const [turn, setTurn] = useState(TURNS.X);
-
-  const [winner, setWinner] = useState(null); //Null es que no hay ganador, false es que hay un empate
-
-  const checkWinner = (boardToCheck) => {
-    //Revisamos todas la combinaciones ganadoras
-    //Para ver si x u o
-    for (const combo of WINNER_COMBOS) {
-      const [a, b, c] = combo;
-      if (
-        boardToCheck[a] && //0 -> x u o
-        boardToCheck[a] === boardToCheck[b] && //0 y 3 -> x -> x u o -> o
-        boardToCheck[a] === boardToCheck[c]
-      ) {
-        return boardToCheck[a];
-      }
-      //Si no hay ganador
-      return null;
-    }
-  };
+    resetGameStorage()
+  }
 
   const updateBoard = (index) => {
-    //No actualizamos esta posicion
-    //Si ya tiene algo
-    if (board[index] || winner) return;
-    //Actualizar el tablero
-    const newBoard = [...board];
-    newBoard[index] = turn; // x u o
-    setBoard(newBoard);
-    //Cambiar el turno
-    const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X;
-    setTurn(newTurn);
-    //Revisar si hay un ganador
-    const newWinner = checkWinner(newBoard)
+    // no actualizamos esta posición
+    // si ya tiene algo
+    if (board[index] || winner) return
+    // actualizar el tablero
+    const newBoard = [...board]
+    newBoard[index] = turn
+    setBoard(newBoard)
+    // cambiar el turno
+    const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
+    setTurn(newTurn)
+    // guardar aqui partida
+    saveGameToStorage({
+      board: newBoard,
+      turn: newTurn
+    })
+    // revisar si hay ganador
+    const newWinner = checkWinnerFrom(newBoard)
     if (newWinner) {
-      setWinner(newWinner) //Actualiza el estado
-      alert('El ganador es: ' + newWinner)
+      confetti()
+      setWinner(newWinner)
+    } else if (checkEndGame(newBoard)) {
+      setWinner(false) // empate
     }
-  };
+  }
 
   return (
-    <main className="board">
-      <h1>Tic Tac Toe</h1>
-      <section className="game">
-        {board.map((_, index) => {
-          return (
-            <Squared key={index} index={index} updateBoard={updateBoard}>
-              {board[index]}
-            </Squared>
-          );
-        })}
+    <main className='board'>
+      <h1>Tic tac toe</h1>
+      <button onClick={resetGame}>Reset del juego</button>
+      <section className='game'>
+        {
+          board.map((square, index) => {
+            return (
+              <Square
+                key={index}
+                index={index}
+                updateBoard={updateBoard}
+              >
+                {square}
+              </Square>
+            )
+          })
+        }
       </section>
 
-      <section className="turn">
-        <Squared isSelected={turn === TURNS.X}>{TURNS.X}</Squared>
-        <Squared isSelected={turn === TURNS.O}>{TURNS.O}</Squared>
+      <section className='turn'>
+        <Square isSelected={turn === TURNS.X}>
+          {TURNS.X}
+        </Square>
+        <Square isSelected={turn === TURNS.O}>
+          {TURNS.O}
+        </Square>
       </section>
+
+      <WinnerModal resetGame={resetGame} winner={winner} />
     </main>
-  );
+  )
 }
 
-export default App;
+export default App
