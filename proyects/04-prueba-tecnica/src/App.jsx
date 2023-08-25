@@ -8,17 +8,13 @@ const CAT_PREFIX_IMAGE_URL = "https://cataas.com";
 export function App() {
   const [fact, setFact] = useState();
   const [imageUrl, setImageUrl] = useState();
-  const [facterror, setFactError] = useState()
 
   //Efecto para recuperar la cita al cargar la pàgina
   useEffect(() => {
     //Este fetch devuelve una promesa
     fetch(CAT_ENDPOINT_RANDOM_FACT)
       //devuelve una promesa
-      .then((res) => {
-        //TODO: Handle error if !res.ok
-        return res.json()
-      })
+      .then((res) => res.json())
       .then((data) => {
         const { fact } = data;
         setFact(fact);
