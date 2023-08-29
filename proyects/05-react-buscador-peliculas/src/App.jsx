@@ -1,46 +1,52 @@
 import "./App.css";
 import { useMovies } from "./hooks/useMovies.js";
 import { Movies } from "./components/Movies";
-import { useEffect, useState } from "react";
+import { useEffect, useState,  } from "react";
 
-function App() {
-  const { movies } = useMovies();
-  const [query, setQuery] = useState("");
+function useSearch() {
+  const [search, updatedSearch] = useState('');
   const [error, setError] = useState(null);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log({ query });
-  };
-
-  const handleChange = (event) => {
-    setQuery(event.target.value);
-  };
-
   useEffect(() => {
-    if (query === "") {
+    if (search === "") {
       setError("No se puede buscar una película vacia");
       return;
     }
-    if (query.match(/^\d+$/)) {
+    if (search.match(/^\d+$/)) {
       setError("No se puede buscar una película con un numero");
       return;
     }
-    if (query.length < 3) {
+    if (search.length < 3) {
       setError("La busqueda debe tener al menos 3 caracteres");
       return;
     }
     setError(null);
-  }, [query]);
+  }, [search]);
+  return { search, updatedSearch, error}
+}
+
+function App() {
+  const { movies } = useMovies();
+  const { search, updatedSearch, error} = useSearch()
+  
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log({ search });
+  };
+
+  const handleChange = (event) => {
+    updatedSearch(event.target.value);
+  };
 
   return (
     <div className="page">
       <header>
         <h1>Buscador de Peliculas</h1>
         <form action="" className="form" onSubmit={handleSubmit}>
-          <input
+          <input style={{border: '1px solid transparent', borderColor: error ? 'red' : 'transparent' }}
             onChange={handleChange}
-            value={query}
+            value={search}
             name="query"
             type=""
             placeholder="Avengers, Star Wars, the Matrix ..."
