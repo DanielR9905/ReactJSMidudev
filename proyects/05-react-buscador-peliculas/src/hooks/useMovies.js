@@ -1,14 +1,33 @@
-import responseMovies from "../mocks/with-results.json";
-import withoutResult from "../mocks/no-results.json";
+import { searchMovies } from "../services/movies.js";
+import { useRef, useState } from "react";
 
-export function useMovies() {
-    const movies = responseMovies.Search;
+export function useMovies({ search, sort }) {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  // Utilizamos el useRef para guardar la busqueda anterior que habiamos generado
+  const previusSearch = useRef(search)
   
-    const mappedMovies = movies?.map((movie) => ({
-      id: movie.imdbID,
-      title: movie.Title,
-      year: movie.Year,
-      image: movie.Poster,
-    }));
-    return { movies: mappedMovies };
-  }
+  //Forma de recuperar las peliculas llamamos lo que devuelve el movies.js (Servicio)
+  const getMovies = async () => {
+    if(search === previusSearch.current) return 
+    try{
+      setLoading(true)
+      setError(null)
+      previusSearch.current = search
+      const newMovies= await searchMovies({ search });
+      setMovies(newMovies)
+    }catch(e) {
+      setError(e.message)
+    }finally{
+      //EL finally siempre se va ejecutar tanto si se comple el try como el catch
+      setLoading(false)
+    }
+  };
+
+  const sortedMovies = sort
+  ? [...movies].sort((a, b) => a.title.localeCompare(b.title))
+  : movies
+
+  return { movies: sortedMovies, getMovies, loading };
+}

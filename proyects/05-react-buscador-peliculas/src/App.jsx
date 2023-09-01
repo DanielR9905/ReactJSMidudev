@@ -1,17 +1,17 @@
 import "./App.css";
 import { useMovies } from "./hooks/useMovies.js";
 import { Movies } from "./components/Movies";
-import { useEffect, useState, useRef  } from "react";
+import { useEffect, useState, useRef } from "react";
 
 function useSearch() {
-  const [search, updatedSearch] = useState('');
+  const [search, updatedSearch] = useState("");
   const [error, setError] = useState(null);
-  const isFirstInput = useRef(true)
+  const isFirstInput = useRef(true);
 
   useEffect(() => {
-    if(isFirstInput.current){
-      isFirstInput.current = search === ''
-      return
+    if (isFirstInput.current) {
+      isFirstInput.current = search === "";
+      return;
     }
     if (search === "") {
       setError("No se puede buscar una película vacia");
@@ -27,18 +27,22 @@ function useSearch() {
     }
     setError(null);
   }, [search]);
-  return { search, updatedSearch, error}
+  return { search, updatedSearch, error };
 }
 
 function App() {
-  const { movies } = useMovies();
-  const { search, updatedSearch, error} = useSearch()
-  
+  const [sort, setSort] = useState(false);
+  const { search, updatedSearch, error } = useSearch();
+  const { movies, loading, getMovies } = useMovies({ search, sort });
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log({ search });
+    getMovies();
   };
+
+  const handleSort = () => {
+    setSort(!sort)
+  }
 
   const handleChange = (event) => {
     updatedSearch(event.target.value);
@@ -49,20 +53,23 @@ function App() {
       <header>
         <h1>Buscador de Peliculas</h1>
         <form action="" className="form" onSubmit={handleSubmit}>
-          <input style={{border: '1px solid transparent', borderColor: error ? 'red' : 'transparent' }}
+          <input
+            style={{
+              border: "1px solid transparent",
+              borderColor: error ? "red" : "transparent",
+            }}
             onChange={handleChange}
             value={search}
             name="query"
             type=""
             placeholder="Avengers, Star Wars, the Matrix ..."
           />
+          <input type="checkbox" onChange={handleSort} checked={sort} />
           <button type="submit">Buscar</button>
         </form>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </header>
-      <main>
-        <Movies movies={movies} />
-      </main>
+      <main>{loading ? <p>Cargando ... 🕣 </p> : <Movies movies={movies} />}</main>
     </div>
   );
 }
