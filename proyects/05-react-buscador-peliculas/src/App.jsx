@@ -48,6 +48,9 @@ function App() {
     updatedSearch(event.target.value);
   };
 
+  useEffect(()=> {
+    console.log('new GetMovies Received');
+  },[getMovies])
   return (
     <div className="page">
       <header>
