@@ -37,20 +37,24 @@ function App() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    getMovies();
+    getMovies({ search });
   };
 
   const handleSort = () => {
-    setSort(!sort)
-  }
-
-  const handleChange = (event) => {
-    updatedSearch(event.target.value);
+    setSort(!sort);
   };
 
-  useEffect(()=> {
-    console.log('new GetMovies Received');
-  },[getMovies])
+  const handleChange = (event) => {
+    const newSearch = event.target.value
+    updatedSearch(newSearch);
+    getMovies({ search : newSearch})
+  };
+
+  useEffect(() => {
+    console.log("new GetMovies Received");
+  }, [getMovies]);
+
+  
   return (
     <div className="page">
       <header>
@@ -72,7 +76,9 @@ function App() {
         </form>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </header>
-      <main>{loading ? <p>Cargando ... 🕣 </p> : <Movies movies={movies} />}</main>
+      <main>
+        {loading ? <p>Cargando ... 🕣 </p> : <Movies movies={movies} />}
+      </main>
     </div>
   );
 }
