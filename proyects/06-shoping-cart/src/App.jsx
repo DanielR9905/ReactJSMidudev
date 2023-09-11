@@ -2,15 +2,17 @@ import { products as initialProducts } from "./mocks/products.json";
 import { Header } from "./components/Header.jsx";
 import { Products } from "./components/Products.jsx";
 import { Footer } from "./components/Footer.jsx";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { IS_DEVELOPMENT  } from "./config.js";
+import { FiltersContext } from "./context/filters";
 
 
 function useFilters() {
-  const [filters, setFilters] = useState({
-    category: "all",
-    minPrice: 0,
-  });
+  // const [filters, setFilters] = useState({
+  //   category: "all",
+  //   minPrice: 0,
+  // });
+  const {filters, setFilters} = useContext(FiltersContext)
 
   //ESTO ES PARA JUNIORS
   const filterProducts = (products) => {
@@ -21,7 +23,7 @@ function useFilters() {
       );
     });
   };
-  return { filterProducts, setFilters };
+  return { filters, filterProducts, setFilters };
 }
 
 function App() {
