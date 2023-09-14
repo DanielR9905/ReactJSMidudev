@@ -1,4 +1,6 @@
 import { createContext, useState } from "react";
+//Singleton -> Modulo de JavaScript
+
 //1. Crear el contexto
 //Este es el que tenemos que consumir
 export const FiltersContext = createContext();

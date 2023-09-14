@@ -1,17 +1,16 @@
-import { useState, useId } from "react";
+import { useId } from "react";
 import "./Filters.css";
+import { useFilters } from "../hooks/useFilters";
 
-export function Filters({ onChange }) {
-  //Creamos estado que nos permite saber donde esta y mostrarlo en el render
-  const [minPrice, setMinPrice] = useState(0);
+export function Filters() {
+  const { filters, setFilters } = useFilters()
+
+  
   const minPriceFilteredId = useId();
   const categoryFilterId = useId();
 
   const handleChangeMinPrice = (event) => {
-    setMinPrice(event.target.value);
-    //ESTO HUELE MAL
-    //DOS FUENTES DE LA VERDAD
-    onChange((prevState) => ({
+    setFilters((prevState) => ({
       ...prevState,
       minPrice: event.target.value,
     }));
@@ -20,7 +19,7 @@ export function Filters({ onChange }) {
   // Estamos pasando la funcion de actualizar estado
   //nativa de react a un component hijo
   const handleChangeCategory = (event) => {
-    onChange((prevState) => ({
+    setFilters((prevState) => ({
       ...prevState,
       category: event.target.value,
     }));
@@ -35,8 +34,9 @@ export function Filters({ onChange }) {
           min="0"
           max="1000"
           onChange={handleChangeMinPrice}
+          value={filters.minPrice}
         />
-        <span>${minPrice}</span>
+        <span>${filters.minPrice}</span>
       </div>
 
       <div>
