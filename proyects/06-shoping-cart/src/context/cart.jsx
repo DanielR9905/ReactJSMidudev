@@ -3,6 +3,19 @@ import { createContext, useState } from "react";
 //1. Crear Contexto
 export const CartContext = createContext();
 
+const initialState = []
+const reducer = (state, action) => {
+  switch (action.type) {
+    case value:
+      
+      break;
+  
+    default:
+      break;
+  }
+  return state
+}
+
 //2. Crear provider
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
@@ -21,14 +34,18 @@ export function CartProvider({ children }) {
     }
 
     // producto no esta en el carrito
-    setCart(prevState => {[
+    setCart(prevState => ([
         ...prevState,
         {
             ...product,
             quantity: 1
         }
-    ]})
+    ]))
   };
+
+  const removeFromCart = product => {
+    setCart( prevState => prevState.filter(item => item.id != product.id))
+  }
   const clearCart = () => {
     setCart([]);
   };
@@ -38,6 +55,7 @@ export function CartProvider({ children }) {
       value={{
         cart,
         addToCart,
+        removeFromCart,
         clearCart,
       }}
     >
