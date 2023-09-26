@@ -1,59 +1,38 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer } from "react";
+import { cartReducer, cartInitialState } from "../reducers/cart";
 
 //1. Crear Contexto
 export const CartContext = createContext();
 
-const initialState = []
-const reducer = (state, action) => {
-  switch (action.type) {
-    case value:
-      
-      break;
+
+function useCartReducer() {
+    //TODO CUSTOM HOOK
+    const [state, dispatch] = useReducer (cartReducer, cartInitialState)
+
+    const addToCart = product => dispatch({
+      type:'ADD_TO_CART',
+      payload: product
+    })
   
-    default:
-      break;
-  }
-  return state
+    const removeFromCart = product => dispatch({
+      type:'REMOVE_FROM_CART',
+      payload:product
+    })
+  
+    const clearCart = () => dispatch({
+      type:'CLEAR_CART'
+    })
+    return { state, addToCart, removeFromCart, clearCart }
 }
 
-//2. Crear provider
+//La dependencia de usar React Context
+//Es MINIMA
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
-
-  const addToCart = (product) => {
-    //Chequear si el producto ya esta en el carrito
-    const productInCartIndex = cart.findIndex(item => item.id === product.id)
-
-    if (productInCartIndex >= 0) {
-        //structuredClone - hace copia profunda de array y objetos
-        const newCart = structuredClone(cart)
-        //Incrementamos la cantidad ya que nodificamos la copia
-        newCart[productInCartIndex].quantity += 1
-        //Actualizamos el nuevo carrito
-        return setCart(newCart)
-    }
-
-    // producto no esta en el carrito
-    setCart(prevState => ([
-        ...prevState,
-        {
-            ...product,
-            quantity: 1
-        }
-    ]))
-  };
-
-  const removeFromCart = product => {
-    setCart( prevState => prevState.filter(item => item.id != product.id))
-  }
-  const clearCart = () => {
-    setCart([]);
-  };
-
+  const { state, addToCart, removeFromCart,clearCart } = useCartReducer()
   return (
     <CartContext.Provider
       value={{
-        cart,
+        cart: state,
         addToCart,
         removeFromCart,
         clearCart,
