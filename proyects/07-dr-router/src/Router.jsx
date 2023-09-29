@@ -33,7 +33,7 @@ export function Router({
     return isRoute ? props : null;
   }).filter(Boolean)
 
-  const routeToUse = routes.concat(routesFromChildren)
+  const routeToUse = routes.concat(routesFromChildren).filter(Boolean)
 
   const Page = routeToUse.find(({ path }) => {
     if (path === currentPath) return true;
