@@ -1,65 +1,70 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { useReducer } from 'react';
-
-//1. Create a initialState
-const initialState = {
-  fromLanguaje: 'auto',
-  toLanguaje: 'en',
-  fromTexto: '',
-  loading: false
-}
-
-//2. Create a reduce
-function reducer(state, action) {
-  //PAyload es lo que estamos enviando de info para actualizar el stado
-    const { type, payload } = action
-
-    if(type === 'INTERCHANGE_LANGUAJES'){
-      return {
-        ...state,
-        fromLanguaje: state.toLanguaje,
-        toLanguaje: state.fromLanguaje
-      }
-    }
-    if (type === 'SET_FROM_LANGUAJE') {
-      return {
-        ...state,
-        fromLanguaje: payload
-      }
-    }
-    if (type === 'SET_TO_LANGUAJE') {
-      return {
-        ...state,
-        toLanguaje: payload
-      }
-    }
-    if(type === 'SET_FROM_TEXT'){
-      return {
-        ...state,
-        loading: true,
-        fromText: payload,
-        result: ''
-      }
-    }
-    if(type === 'SET_RESULT'){
-      return {
-        ...state,
-        loading: false,
-        result: payload
-      }
-    }
-
-    return state
-}
+import { useStore } from "./hooks/useStore";
+import { Container, Row, Col, Button, Stack } from "react-bootstrap";
+import { AUTO_LANGUAJE } from "./constants";
+import { ArrowsIcon } from "./components/Icons";
+import { LanguajeSelector } from "./components/LanguajeSelector";
+import { SectionType } from "./types.d";
+import { TextArea } from "./components/TextArea";
 
 function App() {
-  //3. usar el hook useReducer
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const {
+    loading,
+    fromLanguaje,
+    toLanguaje,
+    fromText,
+    result,
+    interchangeLanguajes,
+    setFromLanguaje,
+    setToLanguaje,
+    setFromText,
+    setResult,
+  } = useStore();
   return (
-    <div className="app">
+    <Container fluid>
       <h1>Google Translate</h1>
-    </div>
+      <Row>
+        <Col>
+          <Stack gap={2}>
+            <LanguajeSelector
+              type={SectionType.From}
+              value={fromLanguaje}
+              onChange={setFromLanguaje}
+            />
+            <TextArea
+              type={SectionType.From}
+              value={fromText}
+              onChange={setFromText}
+            />
+          </Stack>
+        </Col>
+        <Col xs="auto">
+          <Button
+            variant="link"
+            disabled={fromLanguaje === AUTO_LANGUAJE}
+            onClick={interchangeLanguajes}
+          >
+            <ArrowsIcon />
+          </Button>
+        </Col>
+        <Col>
+          <Stack gap={2}>
+            <LanguajeSelector
+              type={SectionType.To}
+              value={toLanguaje}
+              onChange={setToLanguaje}
+            />
+            <TextArea
+            loading={loading}
+              type={SectionType.To}
+              value={result}
+              onChange={setResult}
+            />
+          </Stack>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
