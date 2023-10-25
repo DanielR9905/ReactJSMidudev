@@ -1,21 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import { UsersList } from './components/UsersList'
 import { SortBy, type User } from './types.d'
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+const fetchUsers = async (page: number) => {
+  return await fetch(`https://randomuser.me/api?results=10&seed=midudev&page=${page}`)
+  .then(async res => {
+    if(!res.ok) throw new Error('Error de la petición')
+    return await res.json()
+  })
+  .then(res => {
+    const nextCursor = Number(res.info.page)
+    return {
+      users: res.result,
+      nextCursor
+    }
+  })
+}
 
 function App () {
-  const [users, setUsers] = useState<User[]>([])
+
+  const {isLoading, isError, data, refetch, fetchNextPage, hasNextPage} = useInfiniteQuery<{nextCursor: number, users: User[]}>(
+    ['users'],
+    async () => await fetchUsers(1)
+  )
+
   const [showColors, setShowColors] = useState(false)
   const [sorting, setSorting] = useState<SortBy>(SortBy.NONE)
   const [filterCountry, setFilterCountry] = useState<string | null>(null)
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const originalUsers = useRef<User[]>([])
-  // useRef -> para guardar un valor
-  // que queremos que se comparta entre renderizados
-  // pero que al cambiar, no vuelva a renderizar el componente
 
   const toggleColors = () => {
     setShowColors(!showColors)
@@ -26,40 +42,19 @@ function App () {
     setSorting(newSortingValue)
   }
 
-  const handleReset = () => {
-    setUsers(originalUsers.current)
+  const handleReset = async () => {
+     await refetch()
+    // setUsers(originalUsers.current)
   }
 
   const handleDelete = (email: string) => {
-    const filteredUsers = users.filter((user) => user.email !== email)
-    setUsers(filteredUsers)
+    // const filteredUsers = users.filter((user) => user.email !== email)
+    // setUsers(filteredUsers)
   }
 
   const handleChangeSort = (sort: SortBy) => {
     setSorting(sort)
   }
-
-  useEffect(() => {
-    setLoading(true)
-    setError(false)
-    fetch('https://randomuser.me/api?results=10')
-      .then(async res => {
-        if(!res.ok) throw new Error('Error de la petición')
-        await res.json()
-      })
-      .then(res => {
-        throw new Error('Error forzado')
-        setUsers(res.results)
-        originalUsers.current = res.results
-      })
-      .catch(err => {
-        setError(err)
-        console.error(err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
 
   const filteredUsers = useMemo(() => {
     console.log('calculate filteredUsers')
@@ -110,10 +105,11 @@ function App () {
 
       </header>
       <main>
-        {loading && <strong>Cargando ...</strong>}
-        {!loading && error && <strong>Ha habido un error </strong>}
-        {!loading && !error && users.length === 0 && <strong>No hay usuarios</strong>}
-        {!loading && !error && users.length > 0 && <UsersList changeSorting={handleChangeSort} deleteUser={handleDelete} showColors={showColors} users={sortedUsers} />}
+        {users.length > 0 && <UsersList changeSorting={handleChangeSort} deleteUser={handleDelete} showColors={showColors} users={sortedUsers} />}
+        {isLoading && <strong>Cargando ...</strong>}
+        {isError && <strong>Ha habido un error </strong>}
+        {!isLoading && !isError && users.length === 0 && <strong>No hay usuarios</strong>}
+        {!isLoading && !isError && <button onClick={ ()=> setCurrentPage(currentPage + 1)}> Cargar más resultados</button> }
       </main>
     </div>
   )
