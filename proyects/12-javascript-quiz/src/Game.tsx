@@ -1,10 +1,13 @@
 // import { IconButton, Stack } from "@mui/material"
 
 import { Card, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { useQuestionsStore } from "./store/questions"
 import SyntaxHighLighter from "react-syntax-highlighter"
-import { gradientDark, idea } from "react-syntax-highlighter/dist/esm/styles/hljs"
+import { gradientDark } from "react-syntax-highlighter/dist/esm/styles/hljs"
 import { type Question as QuestionType} from "./types"
+import { ArrowBackIosNew } from '@mui/icons-material'
+import { Footer } from './Footer';
 
 const getBackGroundColor = (info: QuestionType ,index: number ) =>{
     const { userSelectedAnswer, correctAnswer} = info
@@ -57,11 +60,23 @@ export const Game = () => {
 
     const questions = useQuestionsStore(state => state.questions)
     const currentQuestion = useQuestionsStore(state => state.currentQuestion)
+    const goNextQuestion = useQuestionsStore(state => state.goNextQuestion)
+    const goPreviousQuestion = useQuestionsStore(state => state.goPreviousQuestion)
 
     const questionInfo = questions[currentQuestion]
     return (
-        <>
+        <>  
+            <Stack direction='row' gap={2} alignItems='center' justifyContent='center'>
+                <IconButton onClick={goPreviousQuestion} disabled={currentQuestion === 0}>
+                    <ArrowBackIosNew/>
+                </IconButton>
+                {currentQuestion + 1} / { questions.length}
+                <IconButton onClick={goNextQuestion} disabled={currentQuestion > questions.length - 1}>
+                    <ArrowForwardIosIcon/>
+                </IconButton>
+            </Stack>
             <Question info={questionInfo}/>
+            <Footer/>
         </>
     )
 }
