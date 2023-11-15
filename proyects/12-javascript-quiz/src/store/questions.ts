@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Question } from '../types'
 import confetti from 'canvas-confetti'
+import { persist, devtools } from 'zustand/middleware'
 
 interface State {
     questions: Question[]
@@ -12,9 +13,7 @@ interface State {
 }
 
 
-
-
-export const useQuestionsStore = create<State>((set, get) => {
+export const useQuestionsStore = create<State>()(devtools(persist((set, get) => {
     return {
         loading: false,
         questions: [],
@@ -25,7 +24,7 @@ export const useQuestionsStore = create<State>((set, get) => {
             const json = await res.json()
 
             const questions = json.sort(() => Math.random() - 0.5).slice(0, limit)
-            set({ questions })
+            set({ questions }, false, 'FETCH_QUESTIONS')
         },
 
         selectAnswer: (questionId: number, answerIndex: number) => {
@@ -46,7 +45,7 @@ export const useQuestionsStore = create<State>((set, get) => {
                 userSelectedAnswer: answerIndex
             }
             //Actualizar el estado
-            set({ questions: newQuestions })
+            set({ questions: newQuestions }, false, 'SELECT_ANSWER')
         },
 
         goNextQuestion: () => {
@@ -54,7 +53,7 @@ export const useQuestionsStore = create<State>((set, get) => {
             const nextQuestion = currentQuestion + 1
       
             if (nextQuestion < questions.length) {
-              set({ currentQuestion: nextQuestion }, )
+              set({ currentQuestion: nextQuestion }, false, 'GO_NEXT_QUESTION')
             }
           },
       
@@ -63,8 +62,14 @@ export const useQuestionsStore = create<State>((set, get) => {
             const previousQuestion = currentQuestion - 1
       
             if (previousQuestion >= 0) {
-              set({ currentQuestion: previousQuestion })
+              set({ currentQuestion: previousQuestion }, false, 'GO_PREVIUS_QUESTION')
             }
           },
+
+          reset: () =>{
+            set({currentQuestion: 0, questions: []}, false, 'RESET')
+          }
     }
-})
+  }, {
+    name: 'questions'
+  })))
